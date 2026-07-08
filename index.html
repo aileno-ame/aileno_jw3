@@ -158,11 +158,11 @@
                 </div>
                 <div class="form-group">
                     <label>账号</label>
-                    <input type="text" id="f_account" placeholder="登录账号" required>
+                    <input type="text" id="f_account" placeholder="登录账号（可空）" required>
                 </div>
                 <div class="form-group">
                     <label>密码</label>
-                    <input type="text" id="f_password" placeholder="登录密码">
+                    <input type="text" id="f_password" placeholder="登录密码（可空）">
                 </div>
                 <div class="form-group">
                     <label>角色名</label>
@@ -357,7 +357,7 @@
     <div class="card">
         <div class="card-title">使用说明</div>
         <div style="font-size:13px;line-height:1.8;color:#555;">
-            <p><strong style="color:#c41e3a;">1. 账号管理</strong> — 录入所有角色的服务器、账号密码、门派心法、装分等信息。</p>
+            <p><strong style="color:#c41e3a;">1. 账号管理</strong> — 录入所有角色的服务器、账号密码、门派心法、装分等信息。（以上信息均非必填项）</p>
             <p><strong style="color:#c41e3a;">2. 日常周常</strong> — 选择角色和日期，勾选完成的任务。周常按周记录。</p>
             <p><strong style="color:#c41e3a;">3. 副本收支</strong> — 每次打本后记录收入和支出明细。</p>
             <p><strong style="color:#c41e3a;">4. 统计汇总</strong> — 按周、月、角色维度查看收支趋势和对比。</p>
@@ -416,7 +416,7 @@ const DAILY_TASKS = [
     {id:'kuangche',name:'矿车任务',type:'日常',desc:'阵营日常'},
     {id:'paoshang',name:'跑商',type:'日常',desc:'据点贸易'},
     {id:'jiayuan',name:'家园日常',type:'日常',desc:'种花/送信'},
-    {id:'chongbang',name:'驰援',type:'日常',desc:'江湖驰援'}
+    {id:'chongbang',name:'行侠',type:'日常',desc:'穹野卫'}
 ];
 const WEEKLY_TASKS = [
     {id:'10ren',name:'十人本',type:'周常',desc:'团队秘境10人'},
@@ -425,12 +425,14 @@ const WEEKLY_TASKS = [
     {id:'gongfang',name:'攻防',type:'周常',desc:'阵营攻防'},
     {id:'zhanchang',name:'战场首胜',type:'周常',desc:'战场'},
     {id:'jjc',name:'名剑大会',type:'周常',desc:'竞技场'},
+    {id:'langke',name:'千里伐逐',type:'周常',desc:'跨服挖矿'},
     {id:'langke',name:'浪客行',type:'周常',desc:'闯关玩法'},
+    {id:'langke',name:'绝境战场',type:'周常',desc:'吃鸡'},
     {id:'baizhan',name:'百战异闻录',type:'周常',desc:'百战'}
 ];
-const INSTANCE_LIST = ['冷龙峰','九老洞','武狱黑牢','西津渡','河阳之战','雷域大泽','白帝江关','达摩洞','范阳夜变','敖龙岛','狼神殿','一之窟','阆风悬城','25人普通阆风悬城','25人英雄阆风悬城','其他'];
+const INSTANCE_LIST = ['冷龙峰','九老洞','武狱黑牢','西津渡','河阳之战','雷域大泽','白帝江关','达摩洞','范阳夜变','敖龙岛','狼神殿',,'阆风悬城','25人普通阆风悬城','25人英雄阆风悬城','阆风悬城·元心殿','其他'];
 const FINANCE_CATEGORIES = {
-    income:['工资','掉落','特殊','其他收入'],
+    income:['工资','其他收入'],
     expense:['装备','小铁','特殊','附魔','其他支出']
 };
 
