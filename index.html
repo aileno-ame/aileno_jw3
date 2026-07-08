@@ -501,30 +501,23 @@ function renderDashboard() {
     const weekStr = getWeekNumber(today);
     const monthStr = getMonthStr(today);
     const dailies = data.daily[today] || {};
-    let doneCount = 0;
-    Object.values(dailies).forEach(v => { Object.values(v).forEach(x => { if (x) doneCount++; }); });
-    const totalDaily = DAILY_TASKS.length;
-    const weekFinances = data.finances.filter(f => getWeekNumber(f.date) === weekStr);
-    const monthFinances = data.finances.filter(f => getMonthStr(f.date) === monthStr);
-    const weekIncome = weekFinances.filter(f => f.type === 'income').reduce((s,f) => s + f.amount, 0);
-    const weekExpense = weekFinances.filter(f => f.type === 'expense').reduce((s,f) => s + f.amount, 0);
-    const monthIncome = monthFinances.filter(f => f.type === 'income').reduce((s,f) => s + f.amount, 0);
-    const monthExpense = monthFinances.filter(f => f.type === 'expense').reduce((s,f) => s + f.amount, 0);
+const selectedChar = document.getElementById('dailyChar')?.value;
+let doneCount = 0;
+if (selectedChar && dailies[selectedChar]) {
+    Object.values(dailies[selectedChar]).forEach(x => { if (x) doneCount++; });
+}
+const totalDaily = DAILY_TASKS.length;
+const weekFinances = data.finances.filter(f => getWeekNumber(f.date) === weekStr);
+const monthFinances = data.finances.filter(f => getMonthStr(f.date) === monthStr);
+const weekIncome = weekFinances.filter(f => f.type === 'income').reduce((s,f) => s + f.amount, 0);
+const weekExpense = weekFinances.filter(f => f.type === 'expense').reduce((s,f) => s + f.amount, 0);
+const monthIncome = monthFinances.filter(f => f.type === 'income').reduce((s,f) => s + f.amount, 0);
+const monthExpense = monthFinances.filter(f => f.type === 'expense').reduce((s,f) => s + f.amount, 0);
     document.getElementById('dashboardStats').innerHTML = `
-        <div class="stat-card"><div class="label">账号总数</div><div class="num">${data.accounts.length}</div></div>
-        <div class="stat-card"><div class="label">今日日常进度</div><div class="num">${Math.min(Math.round(doneCount/totalDaily*100),100)}%</div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(doneCount/totalDaily*100,100)}%"></div></div></div>
-        <div class="stat-card"><div class="label">本周收益</div><div class="num" style="color:${weekIncome-weekExpense>=0?'#1a7a3a':'#c41e3a'}">${formatNum(weekIncome-weekExpense)}金</div><div class="label">收入${formatNum(weekIncome)} / 支出${formatNum(weekExpense)}</div></div>
-        <div class="stat-card"><div class="label">本月收益</div><div class="num" style="color:${monthIncome-monthExpense>=0?'#1a7a3a':'#c41e3a'}">${formatNum(monthIncome-monthExpense)}金</div><div class="label">收入${formatNum(monthIncome)} / 支出${formatNum(monthExpense)}</div></div>`;
-    const recent = [...data.finances].sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id).slice(0, 10);
-    if (!recent.length) {
-        document.getElementById('recentRecords').innerHTML = '<div class="empty-state">暂无记录，快去打本吧！</div>';
-    } else {
-        document.getElementById('recentRecords').innerHTML = `<div class="table-wrap"><table><thead><tr><th>日期</th><th>角色</th><th>副本</th><th>类型</th><th>金额</th></tr></thead><tbody>${
-            recent.map(r => {
-                const char = data.accounts.find(a => a.id == r.charId);
-                return `<tr><td>${r.date}</td><td>${char ? char.name : '未知'}</td><td>${r.instance}</td><td class="${r.type === 'income' ? 'income' : 'expense'}">${r.type === 'income' ? '收入' : '支出'}</td><td class="${r.type === 'income' ? 'income' : 'expense'}">${r.type === 'income' ? '+' : '-'}${formatNum(r.amount)}</td></tr>`;
-            }).join('')
-        }</tbody></table></div>`;
+    <div class="stat-card"><div class="label">账号总数</div><div class="num">${data.accounts.length}</div></div>
+    <div class="stat-card"><div class="label">今日日常进度${selectedChar ? '' : '（请选角色）'}</div><div class="num">${selectedChar ? Math.round(doneCount/totalDaily*100) + '%' : '-'}</div><div class="progress-bar"><div class="progress-fill" style="width:${selectedChar ? doneCount/totalDaily*100 : 0}%"></div></div></div>
+    <div class="stat-card"><div class="label">本周收益</div><div class="num" style="color:${weekIncome-weekExpense>=0?'#1a7a3a':'#c41e3a'}">${formatNum(weekIncome-weekExpense)}金</div><div class="label">收入${formatNum(weekIncome)} / 支出${formatNum(weekExpense)}</div></div>
+    <div class="stat-card"><div class="label">本月收益</div><div class="num" style="color:${monthIncome-monthExpense>=0?'#1a7a3a':'#c41e3a'}">${formatNum(monthIncome-monthExpense)}金</div><div class="label">收入${formatNum(monthIncome)} / 支出${formatNum(monthExpense)}</div></div>`;
     }
 }
 
