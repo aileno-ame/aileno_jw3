@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大唐赚钱大唐花</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background: #f5f5f5; color: #333; min-height: 100vh; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #c41e3a; border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: #e8e8e8; }
+
+        .header { background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 30%, #fafafa 100%); border-bottom: 2px solid #c41e3a; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header h1 { font-size: 22px; color: #c41e3a; letter-spacing: 2px; }
+        .header .subtitle { font-size: 12px; color: #888; }
+        .header .version { background: #c41e3a11; border: 1px solid #c41e3a; color: #c41e3a; padding: 2px 10px; border-radius: 10px; font-size: 11px; }
+
+        .nav { display: flex; background: #fff; border-bottom: 1px solid #e0e0e0; overflow-x: auto; }
+        .nav-btn { padding: 12px 24px; background: transparent; border: none; color: #666; cursor: pointer; font-size: 14px; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s; font-family: inherit; }
+        .nav-btn:hover { color: #c41e3a; background: #f9f9f9; }
+        .nav-btn.active { color: #c41e3a; border-bottom-color: #c41e3a; background: #fff; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+        .card-title { font-size: 16px; color: #c41e3a; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+        .stat-card .num { font-size: 28px; font-weight: bold; color: #c41e3a; margin: 4px 0; }
+        .stat-card .label { font-size: 12px; color: #888; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 12px; color: #888; }
+        .form-group input, .form-group select, .form-group textarea { background: #fff; border: 1px solid #d0d0d0; border-radius: 4px; padding: 8px 10px; color: #333; font-size: 13px; font-family: inherit; outline: none; transition: border 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #c41e3a; }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-family: inherit; transition: all 0.2s; }
+        .btn-primary { background: #c41e3a; color: #fff; }
+        .btn-primary:hover { background: #a01830; }
+        .btn-secondary { background: #e8e8e8; color: #333; }
+        .btn-secondary:hover { background: #d5d5d5; }
+        .btn-success { background: #1a7a3a; color: #fff; }
+        .btn-success:hover { background: #146030; }
+        .btn-danger { background: #c41e3a; color: #fff; }
+        .btn-danger:hover { background: #a01830; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #f0f0f0; color: #c41e3a; padding: 10px 8px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd; white-space: nowrap; }
+        td { padding: 8px; border-bottom: 1px solid #eee; }
+        tr:hover td { background: #fafafa; }
+        .table-wrap { overflow-x: auto; }
+
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+        .tag-red { background: #c41e3a15; color: #c41e3a; border: 1px solid #c41e3a; }
+        .tag-green { background: #1a7a3a15; color: #1a7a3a; border: 1px solid #4caf50; }
+        .tag-blue { background: #1a3a7a15; color: #1a3a7a; border: 1px solid #4a7fc4; }
+        .tag-yellow { background: #7a7a1a15; color: #7a7a1a; border: 1px solid #c4c44a; }
+        .tag-purple { background: #5a1a7a15; color: #5a1a7a; border: 1px solid #a04ac4; }
+
+        .search-box { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+        .search-box input, .search-box select { background: #fff; border: 1px solid #d0d0d0; border-radius: 4px; padding: 8px 12px; color: #333; font-size: 13px; font-family: inherit; outline: none; }
+        .search-box input:focus, .search-box select:focus { border-color: #c41e3a; }
+
+        .daily-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+        .daily-item { background: #fafafa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+        .daily-item .info { display: flex; flex-direction: column; gap: 2px; }
+        .daily-item .name { font-size: 14px; color: #333; }
+        .daily-item .type { font-size: 11px; color: #999; }
+        .daily-item .check { width: 22px; height: 22px; cursor: pointer; accent-color: #c41e3a; }
+
+        .chart-box { width: 100%; height: 360px; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+        .modal h3 { color: #c41e3a; margin-bottom: 16px; }
+        .modal .btn-group { margin-top: 16px; justify-content: flex-end; }
+
+        .empty-state { text-align: center; padding: 40px; color: #999; }
+
+        .progress-bar { height: 4px; background: #e0e0e0; border-radius: 2px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #c41e3a, #e04060); border-radius: 2px; transition: width 0.3s; }
+
+        .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+        .filter-bar label { font-size: 12px; color: #888; }
+
+        .income { color: #1a7a3a; font-weight: 600; }
+        .expense { color: #c41e3a; font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 18px; }
+            .nav-btn { padding: 10px 14px; font-size: 13px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-grid { grid-template-columns: 1fr; }
+            .container { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <h1>这么多号你玩得过来吗</h1>
+        <span class="version">v2.0</span>
+    </div>
+    <div class="subtitle">我年轻的时候 | 也曾快马加鞭 | 看尽长安花</div>
+</div>
+
+<div class="nav">
+    <button class="nav-btn active" onclick="switchPage('dashboard')">概览</button>
+    <button class="nav-btn" onclick="switchPage('accounts')">账号</button>
+    <button class="nav-btn" onclick="switchPage('daily')">日常周常</button>
+    <button class="nav-btn" onclick="switchPage('finance')">副本收支</button>
+    <button class="nav-btn" onclick="switchPage('stats')">统计</button>
+    <button class="nav-btn" onclick="switchPage('settings')">数据管理</button>
+</div>
+
+<div class="container">
+
+<!-- 概览页 -->
+<div id="page-dashboard" class="page active">
+    <div class="stats-grid" id="dashboardStats"></div>
+    <div class="card">
+        <div class="card-title">快捷操作</div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="switchPage('accounts')">添加账号</button>
+            <button class="btn btn-success" onclick="switchPage('daily')">记录日常</button>
+            <button class="btn btn-secondary" onclick="switchPage('finance')">记录收支</button>
+            <button class="btn btn-secondary" onclick="switchPage('stats')">查看统计</button>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title">最近副本记录</div>
+        <div id="recentRecords"><div class="empty-state">暂无记录</div></div>
+    </div>
+</div>
+
+<!-- 账号管理页 -->
+<div id="page-accounts" class="page">
+    <div class="card">
+        <div class="card-title">＋ 添加 / 编辑账号</div>
+        <form id="accountForm" onsubmit="saveAccount(event)">
+            <input type="hidden" id="editAccountId">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>服务器</label>
+                    <input type="text" id="f_server" placeholder="如：双梦镇" required>
+                </div>
+                <div class="form-group">
+                    <label>账号</label>
+                    <input type="text" id="f_account" placeholder="登录账号" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="text" id="f_password" placeholder="登录密码">
+                </div>
+                <div class="form-group">
+                    <label>角色名</label>
+                    <input type="text" id="f_name" placeholder="游戏角色名" required>
+                </div>
+                <div class="form-group">
+                    <label>门派</label>
+                    <select id="f_menpai"><option value="">选择门派</option></select>
+                </div>
+                <div class="form-group">
+                    <label>心法</label>
+                    <select id="f_xinfa"><option value="">选择心法</option></select>
+                </div>
+                <div class="form-group">
+                    <label>装分</label>
+                    <input type="number" id="f_score" placeholder="装备分数" min="0">
+                </div>
+                <div class="form-group">
+                    <label>备注</label>
+                    <input type="text" id="f_note" placeholder="备注信息">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" id="accountSubmitBtn">添加账号</button>
+                <button type="button" class="btn btn-secondary" onclick="resetAccountForm()">重置</button>
+            </div>
+        </form>
+    </div>
+    <div class="card">
+        <div class="card-title">账号列表 <span id="accountCount" style="font-size:12px;color:#888;"></span></div>
+        <div class="search-box">
+            <input type="text" id="accountSearch" placeholder="搜索角色名/服务器/账号..." oninput="renderAccounts()">
+            <select id="filterMenpai" onchange="renderAccounts()"><option value="">全部门派</option></select>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>服务器</th><th>账号</th><th>密码</th><th>角色名</th><th>门派</th><th>心法</th><th>装分</th><th>备注</th><th>操作</th></tr></thead>
+                <tbody id="accountTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 日常周常页 -->
+<div id="page-daily" class="page">
+    <div class="card">
+        <div class="card-title">日常周常跟踪</div>
+        <div class="filter-bar">
+            <label>角色：</label>
+            <select id="dailyChar" onchange="loadDaily()"></select>
+            <label>日期：</label>
+            <input type="date" id="dailyDate" onchange="loadDaily()">
+            <button class="btn btn-sm btn-success" onclick="checkAllDaily(true)">全部完成</button>
+            <button class="btn btn-sm btn-secondary" onclick="checkAllDaily(false)">全部取消</button>
+        </div>
+        <div id="dailyProgress"></div>
+        <div class="daily-grid" id="dailyList"></div>
+    </div>
+    <div class="card">
+        <div class="card-title">周常任务</div>
+        <div class="filter-bar">
+            <label>选择周：</label>
+            <input type="week" id="weeklyWeek" onchange="loadWeekly()">
+        </div>
+        <div class="daily-grid" id="weeklyList"></div>
+    </div>
+</div>
+
+<!-- 副本收支页 -->
+<div id="page-finance" class="page">
+    <div class="card">
+        <div class="card-title">记录副本收支</div>
+        <form id="financeForm" onsubmit="saveFinance(event)">
+            <input type="hidden" id="editFinanceId">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" id="f_fin_date" required>
+                </div>
+                <div class="form-group">
+                    <label>角色</label>
+                    <select id="f_fin_char" required><option value="">选择角色</option></select>
+                </div>
+                <div class="form-group">
+                    <label>副本</label>
+                    <select id="f_fin_instance"><option value="">选择副本</option></select>
+                </div>
+                <div class="form-group">
+                    <label>类型</label>
+                    <select id="f_fin_type">
+                        <option value="income">收入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>分类</label>
+                    <select id="f_fin_category"></select>
+                </div>
+                <div class="form-group">
+                    <label>金额 (金)</label>
+                    <input type="number" id="f_fin_amount" placeholder="金币数量" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>备注</label>
+                    <input type="text" id="f_fin_note" placeholder="如：拍了精简裤">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" id="financeSubmitBtn">添加记录</button>
+                <button type="button" class="btn btn-secondary" onclick="resetFinanceForm()">重置</button>
+            </div>
+        </form>
+    </div>
+    <div class="card">
+        <div class="card-title">收支记录</div>
+        <div class="search-box">
+            <input type="text" id="financeSearch" placeholder="搜索..." oninput="renderFinance()">
+            <select id="finFilterChar" onchange="renderFinance()"><option value="">全部角色</option></select>
+            <select id="finFilterInstance" onchange="renderFinance()"><option value="">全部副本</option></select>
+            <select id="finFilterType" onchange="renderFinance()"><option value="">全部类型</option><option value="income">收入</option><option value="expense">支出</option></select>
+            <input type="date" id="finFilterDateFrom" onchange="renderFinance()" style="width:140px" placeholder="开始日期">
+            <input type="date" id="finFilterDateTo" onchange="renderFinance()" style="width:140px" placeholder="结束日期">
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>日期</th><th>角色</th><th>副本</th><th>类型</th><th>分类</th><th>金额</th><th>备注</th><th>操作</th></tr></thead>
+                <tbody id="financeTableBody"></tbody>
+            </table>
+        </div>
+        <div style="margin-top:12px;font-size:14px;text-align:right;">
+            收入合计：<span class="income" id="finTotalIncome">0</span> &nbsp;&nbsp;
+            支出合计：<span class="expense" id="finTotalExpense">0</span> &nbsp;&nbsp;
+            净收益：<span id="finTotalNet">0</span>
+        </div>
+    </div>
+</div>
+
+<!-- 统计页 -->
+<div id="page-stats" class="page">
+    <div class="card">
+        <div class="card-title">收支统计</div>
+        <div class="filter-bar">
+            <label>统计维度：</label>
+            <select id="statsDimension" onchange="renderStats()">
+                <option value="weekly">按周</option>
+                <option value="monthly">按月</option>
+                <option value="byChar">按角色</option>
+            </select>
+            <label>年：</label>
+            <select id="statsYear" onchange="renderStats()"></select>
+            <label>月（按月时）：</label>
+            <select id="statsMonth" onchange="renderStats()"><option value="">全部</option></select>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title">趋势图</div>
+        <div class="chart-box" id="statsChart"></div>
+    </div>
+    <div class="card">
+        <div class="card-title">各角色净利润</div>
+        <div class="chart-box" id="charChart"></div>
+    </div>
+    <div class="card">
+        <div class="card-title">明细数据</div>
+        <div class="table-wrap"><table><thead><tr><th>周期</th><th>收入</th><th>支出</th><th>净利润</th></tr></thead><tbody id="statsTableBody"></tbody></table></div>
+    </div>
+</div>
+
+<!-- 数据管理页 -->
+<div id="page-settings" class="page">
+    <div class="card">
+        <div class="card-title">数据管理</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;">
+            <div style="background:#fafafa;padding:16px;border-radius:6px;border:1px solid #e0e0e0;">
+                <h4 style="color:#c41e3a;margin-bottom:8px;">导出数据</h4>
+                <p style="font-size:12px;color:#888;margin-bottom:12px;">导出所有数据为 JSON 文件，用于备份或迁移</p>
+                <button class="btn btn-primary" onclick="exportData()">导出备份</button>
+            </div>
+            <div style="background:#fafafa;padding:16px;border-radius:6px;border:1px solid #e0e0e0;">
+                <h4 style="color:#c41e3a;margin-bottom:8px;">导入数据</h4>
+                <p style="font-size:12px;color:#888;margin-bottom:12px;">导入之前备份的 JSON 文件（将覆盖当前数据）</p>
+                <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importData(event)">
+                <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">选择文件导入</button>
+            </div>
+            <div style="background:#fafafa;padding:16px;border-radius:6px;border:1px solid #e0e0e0;">
+                <h4 style="color:#c41e3a;margin-bottom:8px;">重置数据</h4>
+                <p style="font-size:12px;color:#888;margin-bottom:12px;">清除所有数据，此操作不可撤销</p>
+                <button class="btn btn-danger" onclick="confirmReset()">重置所有数据</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title">使用说明</div>
+        <div style="font-size:13px;line-height:1.8;color:#555;">
+            <p><strong style="color:#c41e3a;">1. 账号管理</strong> — 录入所有角色的服务器、账号密码、门派心法、装分等信息。</p>
+            <p><strong style="color:#c41e3a;">2. 日常周常</strong> — 选择角色和日期，勾选完成的任务。周常按周记录。</p>
+            <p><strong style="color:#c41e3a;">3. 副本收支</strong> — 每次打本后记录收入和支出明细。</p>
+            <p><strong style="color:#c41e3a;">4. 统计汇总</strong> — 按周、月、角色维度查看收支趋势和对比。</p>
+            <p><strong style="color:#c41e3a;">5. 数据备份</strong> — 定期导出备份，防止数据丢失。</p>
+            <p style="margin-top:8px;color:#999;">所有数据仅保存在当前浏览器的 localStorage 中，清除缓存会丢失数据，请务必定期导出备份。</p>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <h3 id="modalTitle">确认</h3>
+        <div id="modalBody"></div>
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-danger" id="modalConfirmBtn" onclick="">确认</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== 数据层 =====
+const DATA_KEY = 'jx3_manager_data';
+const MENPAI_LIST = ['纯阳','七秀','万花','天策','少林','藏剑','五毒','唐门','明教','丐帮','苍云','长歌','霸刀','蓬莱','凌雪阁','衍天宗','北天药宗','刀宗','万灵山庄','段氏','无相楼','大侠'];
+const XINFA_MAP = {
+    '纯阳':['紫霞功','太虚剑意'],
+    '七秀':['冰心诀','云裳心经'],
+    '万花':['花间游','离经易道'],
+    '天策':['傲血战意','铁牢律'],
+    '少林':['易筋经','洗髓经'],
+    '藏剑':['问水诀/山居剑意'],
+    '五毒':['毒经','补天诀'],
+    '唐门':['惊羽诀','天罗诡道'],
+    '明教':['焚影圣诀','明尊琉璃体'],
+    '丐帮':['笑尘诀'],
+    '苍云':['分山劲','铁骨衣'],
+    '长歌':['莫问','相知'],
+    '霸刀':['北傲诀'],
+    '蓬莱':['凌海诀'],
+    '凌雪阁':['隐龙诀'],
+    '衍天宗':['太玄经'],
+    '北天药宗':['灵素','无方'],
+    '刀宗':['孤锋诀'],
+    '万灵山庄':['山海心诀'],
+    '段氏':['周天功'],
+    '无相楼':['幽罗引'],
+    '大侠':['无']
+};
+const DAILY_TASKS = [
+    {id:'dazhan',name:'大战秘境',type:'日常',desc:'五人英雄本'},
+    {id:'chaguan',name:'茶馆任务',type:'日常',desc:'主城茶馆'},
+    {id:'menpai',name:'门派勤修',type:'日常',desc:'勤修不辍'},
+    {id:'kuangche',name:'矿车任务',type:'日常',desc:'阵营日常'},
+    {id:'paoshang',name:'跑商',type:'日常',desc:'据点贸易'},
+    {id:'jiayuan',name:'家园日常',type:'日常',desc:'种花/送信'},
+    {id:'chongbang',name:'驰援',type:'日常',desc:'江湖驰援'}
+];
+const WEEKLY_TASKS = [
+    {id:'10ren',name:'十人本',type:'周常',desc:'团队秘境10人'},
+    {id:'25ren',name:'二十五人本',type:'周常',desc:'团队秘境25人'},
+    {id:'shilian',name:'试炼之地',type:'周常',desc:'单人爬塔'},
+    {id:'gongfang',name:'攻防',type:'周常',desc:'阵营攻防'},
+    {id:'zhanchang',name:'战场首胜',type:'周常',desc:'战场'},
+    {id:'jjc',name:'名剑大会',type:'周常',desc:'竞技场'},
+    {id:'langke',name:'浪客行',type:'周常',desc:'闯关玩法'},
+    {id:'baizhan',name:'百战异闻录',type:'周常',desc:'百战'}
+];
+const INSTANCE_LIST = ['冷龙峰','九老洞','武狱黑牢','西津渡','河阳之战','雷域大泽','白帝江关','达摩洞','范阳夜变','敖龙岛','狼神殿','一之窟','阆风悬城','25人普通阆风悬城','25人英雄阆风悬城','其他'];
+const FINANCE_CATEGORIES = {
+    income:['工资','掉落','特殊','其他收入'],
+    expense:['装备','小铁','特殊','附魔','其他支出']
+};
+
+function getDefaultData() {
+    return { accounts: [], daily: {}, weekly: {}, finances: [] };
+}
+
+function getData() {
+    try {
+        const raw = localStorage.getItem(DATA_KEY);
+        if (raw) {
+            const d = JSON.parse(raw);
+            if (!d.accounts) d.accounts = [];
+            if (!d.daily) d.daily = {};
+            if (!d.weekly) d.weekly = {};
+            if (!d.finances) d.finances = [];
+            return d;
+        }
+    } catch(e) {}
+    return getDefaultData();
+}
+
+function saveDataToLocal(data) {
+    localStorage.setItem(DATA_KEY, JSON.stringify(data));
+}
+
+function getToday() {
+    return new Date().toISOString().split('T')[0];
+}
+
+function getWeekNumber(d) {
+    const date = new Date(d);
+    const startOfYear = new Date(date.getFullYear(), 0, 1);
+    const diff = date - startOfYear + (startOfYear.getTimezoneOffset() - date.getTimezoneOffset()) * 60000;
+    return `${date.getFullYear()}-W${String(Math.ceil(diff / 604800000)).padStart(2,'0')}`;
+}
+
+function getMonthStr(d) {
+    return d.substring(0,7);
+}
+
+function formatNum(n) {
+    return Number(n).toLocaleString();
+}
+
+// ===== 页面切换 =====
+function switchPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelector(`.nav-btn[onclick*="'${name}'"]`).classList.add('active');
+    if (name === 'dashboard') renderDashboard();
+    else if (name === 'accounts') renderAccounts();
+    else if (name === 'daily') { loadDaily(); }
+    else if (name === 'finance') renderFinance();
+    else if (name === 'stats') renderStats();
+}
+
+// ===== 概览 =====
+function renderDashboard() {
+    const data = getData();
+    const today = getToday();
+    const weekStr = getWeekNumber(today);
+    const monthStr = getMonthStr(today);
+    const dailies = data.daily[today] || {};
+    let doneCount = 0;
+    Object.values(dailies).forEach(v => { Object.values(v).forEach(x => { if (x) doneCount++; }); });
+    const totalDaily = DAILY_TASKS.length;
+    const weekFinances = data.finances.filter(f => getWeekNumber(f.date) === weekStr);
+    const monthFinances = data.finances.filter(f => getMonthStr(f.date) === monthStr);
+    const weekIncome = weekFinances.filter(f => f.type === 'income').reduce((s,f) => s + f.amount, 0);
+    const weekExpense = weekFinances.filter(f => f.type === 'expense').reduce((s,f) => s + f.amount, 0);
+    const monthIncome = monthFinances.filter(f => f.type === 'income').reduce((s,f) => s + f.amount, 0);
+    const monthExpense = monthFinances.filter(f => f.type === 'expense').reduce((s,f) => s + f.amount, 0);
+    document.getElementById('dashboardStats').innerHTML = `
+        <div class="stat-card"><div class="label">账号总数</div><div class="num">${data.accounts.length}</div></div>
+        <div class="stat-card"><div class="label">今日日常进度</div><div class="num">${Math.min(Math.round(doneCount/totalDaily*100),100)}%</div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(doneCount/totalDaily*100,100)}%"></div></div></div>
+        <div class="stat-card"><div class="label">本周收益</div><div class="num" style="color:${weekIncome-weekExpense>=0?'#1a7a3a':'#c41e3a'}">${formatNum(weekIncome-weekExpense)}金</div><div class="label">收入${formatNum(weekIncome)} / 支出${formatNum(weekExpense)}</div></div>
+        <div class="stat-card"><div class="label">本月收益</div><div class="num" style="color:${monthIncome-monthExpense>=0?'#1a7a3a':'#c41e3a'}">${formatNum(monthIncome-monthExpense)}金</div><div class="label">收入${formatNum(monthIncome)} / 支出${formatNum(monthExpense)}</div></div>`;
+    const recent = [...data.finances].sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id).slice(0, 10);
+    if (!recent.length) {
+        document.getElementById('recentRecords').innerHTML = '<div class="empty-state">暂无记录，快去打本吧！</div>';
+    } else {
+        document.getElementById('recentRecords').innerHTML = `<div class="table-wrap"><table><thead><tr><th>日期</th><th>角色</th><th>副本</th><th>类型</th><th>金额</th></tr></thead><tbody>${
+            recent.map(r => {
+                const char = data.accounts.find(a => a.id == r.charId);
+                return `<tr><td>${r.date}</td><td>${char ? char.name : '未知'}</td><td>${r.instance}</td><td class="${r.type === 'income' ? 'income' : 'expense'}">${r.type === 'income' ? '收入' : '支出'}</td><td class="${r.type === 'income' ? 'income' : 'expense'}">${r.type === 'income' ? '+' : '-'}${formatNum(r.amount)}</td></tr>`;
+            }).join('')
+        }</tbody></table></div>`;
+    }
+}
+
+// ===== 账号管理 =====
+function initMenpaiSelect() {
+    const fmp = document.getElementById('f_menpai');
+    fmp.innerHTML = '<option value="">选择门派</option>' + MENPAI_LIST.map(m => `<option value="${m}">${m}</option>`).join('');
+    fmp.onchange = function() {
+        const sel = document.getElementById('f_xinfa');
+        sel.innerHTML = '<option value="">选择心法</option>';
+        if (this.value && XINFA_MAP[this.value]) {
+            XINFA_MAP[this.value].forEach(x => sel.innerHTML += `<option value="${x}">${x}</option>`);
+        }
+    };
+    const fm = document.getElementById('filterMenpai');
+    fm.innerHTML = '<option value="">全部门派</option>' + MENPAI_LIST.map(m => `<option value="${m}">${m}</option>`).join('');
+}
+
+function saveAccount(e) {
+    e.preventDefault();
+    const data = getData();
+    const id = document.getElementById('editAccountId').value;
+    const acct = {
+        server: document.getElementById('f_server').value.trim(),
+        account: document.getElementById('f_account').value.trim(),
+        password: document.getElementById('f_password').value.trim(),
+        name: document.getElementById('f_name').value.trim(),
+        menpai: document.getElementById('f_menpai').value,
+        xinfa: document.getElementById('f_xinfa').value,
+        score: parseInt(document.getElementById('f_score').value) || 0,
+        note: document.getElementById('f_note').value.trim()
+    };
+    if (id) {
+        const idx = data.accounts.findIndex(a => a.id == id);
+        if (idx >= 0) data.accounts[idx] = { ...data.accounts[idx], ...acct };
+    } else {
+        acct.id = Date.now() + Math.random() * 1000;
+        data.accounts.push(acct);
+    }
+    saveDataToLocal(data);
+    resetAccountForm();
+    renderAccounts();
+    refreshCharSelects();
+}
+
+function resetAccountForm() {
+    document.getElementById('editAccountId').value = '';
+    document.getElementById('accountForm').reset();
+    document.getElementById('accountSubmitBtn').textContent = '添加账号';
+    document.getElementById('f_xinfa').innerHTML = '<option value="">选择心法</option>';
+}
+
+function editAccount(id) {
+    const data = getData();
+    const acct = data.accounts.find(a => a.id == id);
+    if (!acct) return;
+    document.getElementById('editAccountId').value = acct.id;
+    document.getElementById('f_server').value = acct.server || '';
+    document.getElementById('f_account').value = acct.account || '';
+    document.getElementById('f_password').value = acct.password || '';
+    document.getElementById('f_name').value = acct.name || '';
+    document.getElementById('f_menpai').value = acct.menpai || '';
+    document.getElementById('f_menpai').dispatchEvent(new Event('change'));
+    document.getElementById('f_xinfa').value = acct.xinfa || '';
+    document.getElementById('f_score').value = acct.score || 0;
+    document.getElementById('f_note').value = acct.note || '';
+    document.getElementById('accountSubmitBtn').textContent = '保存修改';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function deleteAccount(id) {
+    showModal('确认删除', '确定要删除该账号吗？此操作不可撤销。', () => {
+        const data = getData();
+        data.accounts = data.accounts.filter(a => a.id != id);
+        saveDataToLocal(data);
+        renderAccounts();
+        refreshCharSelects();
+    });
+}
+
+function renderAccounts() {
+    const data = getData();
+    const search = (document.getElementById('accountSearch').value || '').toLowerCase();
+    const filterMp = document.getElementById('filterMenpai').value;
+    let list = data.accounts.filter(a => {
+        if (filterMp && a.menpai !== filterMp) return false;
+        if (search && !a.name.toLowerCase().includes(search) && !a.server.toLowerCase().includes(search) && !a.account.toLowerCase().includes(search)) return false;
+        return true;
+    });
+    document.getElementById('accountCount').textContent = `共 ${list.length} 个账号`;
+    if (!list.length) {
+        document.getElementById('accountTableBody').innerHTML = '<tr><td colspan="9"><div class="empty-state">暂无账号，添加一个吧！</div></td></tr>';
+        return;
+    }
+    document.getElementById('accountTableBody').innerHTML = list.map(a => `<tr>
+        <td>${a.server || '-'}</td>
+        <td>${a.account || '-'}</td>
+        <td>${a.password ? '●●●●●●' : '-'}</td>
+        <td><strong>${a.name}</strong></td>
+        <td><span class="tag tag-red">${a.menpai || '-'}</span></td>
+        <td>${a.xinfa || '-'}</td>
+        <td>${a.score || '-'}</td>
+        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.note || '-'}</td>
+        <td><button class="btn btn-sm btn-secondary" onclick="editAccount(${a.id})">编辑</button> <button class="btn btn-sm btn-danger" onclick="deleteAccount(${a.id})">删除</button></td>
+    </tr>`).join('');
+}
+
+// ===== 日常周常 =====
+function refreshCharSelects() {
+    const data = getData();
+    ['dailyChar','f_fin_char','finFilterChar'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) sel.innerHTML = '<option value="">选择角色</option>' + data.accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+    });
+    const isel = document.getElementById('f_fin_instance');
+    if (isel) isel.innerHTML = '<option value="">选择副本</option>' + INSTANCE_LIST.map(i => `<option value="${i}">${i}</option>`).join('');
+}
+
+function loadDaily() {
+    const data = getData();
+    const charId = document.getElementById('dailyChar').value;
+    const date = document.getElementById('dailyDate').value || getToday();
+    document.getElementById('dailyDate').value = date;
+    if (!charId) {
+        document.getElementById('dailyList').innerHTML = '<div class="empty-state">请先选择一个角色</div>';
+        document.getElementById('dailyProgress').innerHTML = '';
+        loadWeekly();
+        return;
+    }
+    if (!data.daily[date]) data.daily[date] = {};
+    if (!data.daily[date][charId]) data.daily[date][charId] = {};
+    const tasks = data.daily[date][charId];
+    let done = 0;
+    document.getElementById('dailyList').innerHTML = DAILY_TASKS.map(t => {
+        const checked = tasks[t.id] || false;
+        if (checked) done++;
+        return `<div class="daily-item">
+            <div class="info"><span class="name">${t.name}</span><span class="type">${t.type} · ${t.desc}</span></div>
+            <input type="checkbox" class="check" ${checked ? 'checked' : ''} onchange="toggleDaily('${charId}','${date}','${t.id}',this.checked)">
+        </div>`;
+    }).join('');
+    document.getElementById('dailyProgress').innerHTML = `<div style="margin-bottom:12px;">完成进度：${done}/${DAILY_TASKS.length} (${Math.round(done/DAILY_TASKS.length*100)}%)
+        <div class="progress-bar"><div class="progress-fill" style="width:${done/DAILY_TASKS.length*100}%"></div></div></div>`;
+    loadWeekly();
+}
+
+function toggleDaily(charId, date, taskId, checked) {
+    const data = getData();
+    if (!data.daily[date]) data.daily[date] = {};
+    if (!data.daily[date][charId]) data.daily[date][charId] = {};
+    data.daily[date][charId][taskId] = checked;
+    saveDataToLocal(data);
+    loadDaily();
+}
+
+function checkAllDaily(val) {
+    const data = getData();
+    const charId = document.getElementById('dailyChar').value;
+    const date = document.getElementById('dailyDate').value || getToday();
+    if (!charId) return;
+    if (!data.daily[date]) data.daily[date] = {};
+    if (!data.daily[date][charId]) data.daily[date][charId] = {};
+    DAILY_TASKS.forEach(t => data.daily[date][charId][t.id] = val);
+    saveDataToLocal(data);
+    loadDaily();
+}
+
+function loadWeekly() {
+    const data = getData();
+    const weekEl = document.getElementById('weeklyWeek');
+    if (!weekEl.value) {
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        const mon = new Date(now);
+        mon.setDate(mon.getDate() - diff);
+        const weekNum = getWeekNumber(mon.toISOString().split('T')[0]);
+        weekEl.value = weekNum;
+    }
+    const weekStr = weekEl.value;
+    const charId = document.getElementById('dailyChar').value;
+    if (!charId) { document.getElementById('weeklyList').innerHTML = '<div class="empty-state">请先选择一个角色</div>'; return; }
+    if (!data.weekly[weekStr]) data.weekly[weekStr] = {};
+    if (!data.weekly[weekStr][charId]) data.weekly[weekStr][charId] = {};
+    const tasks = data.weekly[weekStr][charId];
+    document.getElementById('weeklyList').innerHTML = WEEKLY_TASKS.map(t => {
+        const checked = tasks[t.id] || false;
+        return `<div class="daily-item">
+            <div class="info"><span class="name">${t.name}</span><span class="type">${t.type} · ${t.desc}</span></div>
+            <input type="checkbox" class="check" ${checked ? 'checked' : ''} onchange="toggleWeekly('${charId}','${weekStr}','${t.id}',this.checked)">
+        </div>`;
+    }).join('');
+}
+
+function toggleWeekly(charId, weekStr, taskId, checked) {
+    const data = getData();
+    if (!data.weekly[weekStr]) data.weekly[weekStr] = {};
+    if (!data.weekly[weekStr][charId]) data.weekly[weekStr][charId] = {};
+    data.weekly[weekStr][charId][taskId] = checked;
+    saveDataToLocal(data);
+    loadWeekly();
+}
+
+// ===== 副本收支 =====
+function initFinanceForm() {
+    document.getElementById('f_fin_date').value = getToday();
+    document.getElementById('f_fin_type').onchange = function() {
+        const cat = document.getElementById('f_fin_category');
+        const cats = FINANCE_CATEGORIES[this.value] || FINANCE_CATEGORIES.income;
+        cat.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+    };
+    document.getElementById('f_fin_type').dispatchEvent(new Event('change'));
+}
+
+function saveFinance(e) {
+    e.preventDefault();
+    const data = getData();
+    const id = document.getElementById('editFinanceId').value;
+    const rec = {
+        date: document.getElementById('f_fin_date').value,
+        charId: document.getElementById('f_fin_char').value,
+        instance: document.getElementById('f_fin_instance').value,
+        type: document.getElementById('f_fin_type').value,
+        category: document.getElementById('f_fin_category').value,
+        amount: parseFloat(document.getElementById('f_fin_amount').value) || 0,
+        note: document.getElementById('f_fin_note').value.trim()
+    };
+    if (!rec.charId) { alert('请选择角色'); return; }
+    if (rec.amount <= 0) { alert('请输入有效金额'); return; }
+    if (id) {
+        const idx = data.finances.findIndex(f => f.id == id);
+        if (idx >= 0) data.finances[idx] = { ...data.finances[idx], ...rec };
+    } else {
+        rec.id = Date.now() + Math.random() * 1000;
+        data.finances.push(rec);
+    }
+    saveDataToLocal(data);
+    resetFinanceForm();
+    renderFinance();
+}
+
+function resetFinanceForm() {
+    document.getElementById('editFinanceId').value = '';
+    document.getElementById('financeForm').reset();
+    document.getElementById('f_fin_date').value = getToday();
+    document.getElementById('f_fin_type').dispatchEvent(new Event('change'));
+    document.getElementById('financeSubmitBtn').textContent = '添加记录';
+}
+
+function editFinance(id) {
+    const data = getData();
+    const rec = data.finances.find(f => f.id == id);
+    if (!rec) return;
+    document.getElementById('editFinanceId').value = rec.id;
+    document.getElementById('f_fin_date').value = rec.date;
+    document.getElementById('f_fin_char').value = rec.charId;
+    document.getElementById('f_fin_instance').value = rec.instance;
+    document.getElementById('f_fin_type').value = rec.type;
+    document.getElementById('f_fin_type').dispatchEvent(new Event('change'));
+    document.getElementById('f_fin_category').value = rec.category;
+    document.getElementById('f_fin_amount').value = rec.amount;
+    document.getElementById('f_fin_note').value = rec.note || '';
+    document.getElementById('financeSubmitBtn').textContent = '保存修改';
+    switchPage('finance');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function deleteFinance(id) {
+    showModal('确认删除', '确定要删除该收支记录吗？', () => {
+        const data = getData();
+        data.finances = data.finances.filter(f => f.id != id);
+        saveDataToLocal(data);
+        renderFinance();
+    });
+}
+
+function renderFinance() {
+    const data = getData();
+    const search = (document.getElementById('financeSearch').value || '').toLowerCase();
+    const filterChar = document.getElementById('finFilterChar').value;
+    const filterInst = document.getElementById('finFilterInstance').value;
+    const filterType = document.getElementById('finFilterType').value;
+    const dateFrom = document.getElementById('finFilterDateFrom').value;
+    const dateTo = document.getElementById('finFilterDateTo').value;
+    let list = data.finances.filter(f => {
+        if (filterChar && f.charId != filterChar) return false;
+        if (filterInst && f.instance !== filterInst) return false;
+        if (filterType && f.type !== filterType) return false;
+        if (dateFrom && f.date < dateFrom) return false;
+        if (dateTo && f.date > dateTo) return false;
+        if (search) {
+            const char = data.accounts.find(a => a.id == f.charId);
+            const txt = (f.instance + ' ' + (char ? char.name : '') + ' ' + f.category + ' ' + f.note).toLowerCase();
+            if (!txt.includes(search)) return false;
+        }
+        return true;
+    }).sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
+    const totalIncome = list.filter(f => f.type === 'income').reduce((s,f) => s + f.amount, 0);
+    const totalExpense = list.filter(f => f.type === 'expense').reduce((s,f) => s + f.amount, 0);
+    document.getElementById('finTotalIncome').textContent = formatNum(totalIncome);
+    document.getElementById('finTotalExpense').textContent = formatNum(totalExpense);
+    const net = totalIncome - totalExpense;
+    document.getElementById('finTotalNet').textContent = formatNum(net);
+    document.getElementById('finTotalNet').style.color = net >= 0 ? '#1a7a3a' : '#c41e3a';
+    if (!list.length) {
+        document.getElementById('financeTableBody').innerHTML = '<tr><td colspan="8"><div class="empty-state">暂无收支记录</div></td></tr>';
+        return;
+    }
+    document.getElementById('financeTableBody').innerHTML = list.map(f => {
+        const char = data.accounts.find(a => a.id == f.charId);
+        return `<tr>
+            <td>${f.date}</td>
+            <td>${char ? char.name : '未知'}</td>
+            <td>${f.instance || '-'}</td>
+            <td>${f.type === 'income' ? '<span class="tag tag-green">收入</span>' : '<span class="tag tag-red">支出</span>'}</td>
+            <td>${f.category}</td>
+            <td class="${f.type === 'income' ? 'income' : 'expense'}">${f.type === 'income' ? '+' : '-'}${formatNum(f.amount)}</td>
+            <td>${f.note || '-'}</td>
+            <td><button class="btn btn-sm btn-secondary" onclick="editFinance(${f.id})">编辑</button> <button class="btn btn-sm btn-danger" onclick="deleteFinance(${f.id})">删除</button></td>
+        </tr>`;
+    }).join('');
+}
+
+// ===== 统计 =====
+function renderStats() {
+    const data = getData();
+    const dim = document.getElementById('statsDimension').value;
+    const year = parseInt(document.getElementById('statsYear').value) || new Date().getFullYear();
+    const month = document.getElementById('statsMonth').value;
+    if (!data.finances.length) {
+        document.getElementById('statsTableBody').innerHTML = '<tr><td colspan="4"><div class="empty-state">暂无数据</div></td></tr>';
+        if (window.statsChartInstance) { window.statsChartInstance.dispose(); window.statsChartInstance = null; }
+        if (window.charChartInstance) { window.charChartInstance.dispose(); window.charChartInstance = null; }
+        return;
+    }
+    let groups = {};
+    data.finances.forEach(f => {
+        if (parseInt(f.date.substring(0,4)) !== year) return;
+        if (dim === 'monthly' && month && getMonthStr(f.date) !== `${year}-${String(month).padStart(2,'0')}`) return;
+        let key;
+        if (dim === 'weekly') key = getWeekNumber(f.date);
+        else if (dim === 'monthly') key = getMonthStr(f.date);
+        else key = f.charId;
+        if (!groups[key]) groups[key] = { income: 0, expense: 0 };
+        if (f.type === 'income') groups[key].income += f.amount;
+        else groups[key].expense += f.amount;
+    });
+    const keys = Object.keys(groups).sort();
+    const tableBody = keys.map(k => {
+        const g = groups[k];
+        const label = dim === 'byChar' ? (data.accounts.find(a => a.id == k)?.name || '未知') : k;
+        return `<tr><td>${label}</td><td class="income">${formatNum(g.income)}</td><td class="expense">${formatNum(g.expense)}</td><td style="color:${g.income-g.expense>=0?'#1a7a3a':'#c41e3a'}">${formatNum(g.income-g.expense)}</td></tr>`;
+    }).join('');
+    document.getElementById('statsTableBody').innerHTML = tableBody || '<tr><td colspan="4"><div class="empty-state">该年暂无数据</div></td></tr>';
+
+    const chartLabels = keys.map(k => dim === 'byChar' ? (data.accounts.find(a => a.id == k)?.name || '未知') : k);
+    const incomeData = keys.map(k => groups[k].income);
+    const expenseData = keys.map(k => groups[k].expense);
+    const netData = keys.map(k => groups[k].income - groups[k].expense);
+
+    const chartDom = document.getElementById('statsChart');
+    if (window.statsChartInstance) window.statsChartInstance.dispose();
+    window.statsChartInstance = echarts.init(chartDom);
+    window.statsChartInstance.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['收入','支出','净收益'], textStyle: { color: '#666' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: chartLabels, axisLabel: { color: '#666', rotate: 30 } },
+        yAxis: { type: 'value', axisLabel: { color: '#666' }, splitLine: { lineStyle: { color: '#e0e0e0' } } },
+        series: [
+            { name: '收入', type: 'bar', stack: 'total', data: incomeData, itemStyle: { color: '#4caf50' } },
+            { name: '支出', type: 'bar', stack: 'total', data: expenseData.map(v => -v), itemStyle: { color: '#c41e3a' } },
+            { name: '净收益', type: 'line', data: netData, itemStyle: { color: '#ff9800' }, lineStyle: { width: 2 } }
+        ]
+    });
+
+    const charDom = document.getElementById('charChart');
+    if (window.charChartInstance) window.charChartInstance.dispose();
+    window.charChartInstance = echarts.init(charDom);
+    let charGroups = {};
+    data.finances.forEach(f => {
+        if (!charGroups[f.charId]) charGroups[f.charId] = { income: 0, expense: 0 };
+        if (f.type === 'income') charGroups[f.charId].income += f.amount;
+        else charGroups[f.charId].expense += f.amount;
+    });
+    const cKeys = Object.keys(charGroups);
+    const cLabels = cKeys.map(k => data.accounts.find(a => a.id == k)?.name || '未知');
+    const cNet = cKeys.map(k => charGroups[k].income - charGroups[k].expense);
+    window.charChartInstance.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: cLabels, axisLabel: { color: '#666', rotate: 30 } },
+        yAxis: { type: 'value', axisLabel: { color: '#666' }, splitLine: { lineStyle: { color: '#e0e0e0' } } },
+        series: [{
+            name: '净利润', type: 'bar', data: cNet,
+            itemStyle: { color: function(p) { return p.value >= 0 ? '#4caf50' : '#c41e3a'; } }
+        }]
+    });
+}
+
+// ===== 数据管理 =====
+function exportData() {
+    const data = getData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `jx3_backup_${getToday()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function importData(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        try {
+            const data = JSON.parse(ev.target.result);
+            if (!data.accounts) throw new Error('无效文件');
+            showModal('确认导入', '导入将覆盖当前所有数据，确定继续吗？', () => {
+                saveDataToLocal(data);
+                renderDashboard();
+                refreshCharSelects();
+                alert('数据导入成功！');
+            });
+        } catch(err) {
+            alert('文件格式错误，请选择有效的备份文件。');
+        }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+}
+
+function confirmReset() {
+    showModal('⚠ 危险操作', '确定要清除所有数据吗？此操作不可撤销！所有账号信息、日常记录、收支数据将被永久删除。', () => {
+        localStorage.removeItem(DATA_KEY);
+        renderDashboard();
+        refreshCharSelects();
+        alert('数据已重置。');
+    });
+}
+
+// ===== Modal =====
+function showModal(title, body, onConfirm) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = body;
+    document.getElementById('modalOverlay').classList.add('show');
+    document.getElementById('modalConfirmBtn').onclick = function() {
+        closeModal();
+        if (onConfirm) onConfirm();
+    };
+}
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+}
+
+// ===== 初始化 =====
+function init() {
+    initMenpaiSelect();
+    initFinanceForm();
+    const yearSel = document.getElementById('statsYear');
+    const monthSel = document.getElementById('statsMonth');
+    const curYear = new Date().getFullYear();
+    for (let y = curYear - 3; y <= curYear + 1; y++) {
+        yearSel.innerHTML += `<option value="${y}" ${y === curYear ? 'selected' : ''}>${y}年</option>`;
+    }
+    for (let m = 1; m <= 12; m++) {
+        monthSel.innerHTML += `<option value="${m}" ${m === new Date().getMonth()+1 ? 'selected' : ''}>${m}月</option>`;
+    }
+    refreshCharSelects();
+    document.getElementById('dailyDate').value = getToday();
+    renderDashboard();
+    window.addEventListener('resize', () => {
+        if (window.statsChartInstance) window.statsChartInstance.resize();
+        if (window.charChartInstance) window.charChartInstance.resize();
+    });
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
